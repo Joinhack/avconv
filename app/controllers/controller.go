@@ -47,8 +47,8 @@ func Amrnb2Wav(url string, app *peony.App) peony.Renderer {
 	}
 	workPath := app.GetStringConfig("workpath", "/tmp")
 	resp, err := client.Get(url)
-	if err != nil {
-		return peony.NotFound("Get file[%s] error, detial: %s ", url, err.Error())
+	if err != nil || resp.StatusCode != http.StatusOK {
+		return peony.NotFound("Get file from [%s] error.", url)
 	}
 	amrPath := path.Join(workPath, fmt.Sprintf("%x.amr", sum))
 	amrFile, err := os.OpenFile(amrPath, os.O_WRONLY|os.O_CREATE, 0666)

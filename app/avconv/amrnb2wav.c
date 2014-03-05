@@ -39,12 +39,14 @@ int amrnb2wav(const char *amrpath, const char *wavpath) {
 	}
 	n = fread(header, 1, 6, in);
 	if (n != 6 || memcmp(header, "#!AMR\n", 6)) {
+		fclose(in);
 		fprintf(stderr, "Bad header\n");
 		return -1;
 	}
 
 	wav = wav_write_open(wavpath, 8000, 16, 1);
 	if (!wav) {
+		fclose(in);
 		fprintf(stderr, "Unable to open %s\n", wavpath);
 		return -1;
 	}
