@@ -1,0 +1,26 @@
+app.name=avconv
+app.secret=hEH8PGKsfzqQjWYAvTJtayo0_CLgw3mb4USiRd9Fcn5DNM1pOrBkelxVI6X7Z-u2
+app.addr=:9000
+
+log.trace.prefix = "TRACE "
+log.info.prefix  = "INFO  "
+log.warn.prefix  = "WARN  "
+log.error.prefix = "ERROR "
+
+#all static path uri prefix
+static.uri  =  /static
+#it's a relative path in app 
+static.path =  static
+workpath=/tmp
+
+[dev]
+log.trace.output = off
+log.info.output  = stderr
+log.warn.output  = stderr
+log.error.output = stderr
+
+[prod]
+log.trace.output = off
+log.info.output  = $(app.name).log
+log.warn.output  = $(app.name).log
+log.error.output = $(app.name).log

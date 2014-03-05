@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Application error</title>
+	<style>
+	html, body {
+		margin: 0;
+		padding: 0;
+		font-family: Helvetica, Arial, Sans;
+		background: #EEEEEE;
+	}
+	.block {
+		padding: 20px;
+		border-bottom: 1px solid #aaa;
+	}
+	.header h1 {
+		font-weight: normal;
+		font-size: 28px;
+		margin: 0;
+		color: #851b17;
+	}
+	.more {
+		color: #666;
+		font-size: 80%;
+		border: none;
+	}
+	.header {
+		border-radius: 2px;
+		background: #c4d2fd;
+	}
+	.header p {
+		color: #851b17;
+	}
+	.source {
+		background: #f6f6f6;
+		border-radius: 8px;
+	}
+	.source h2 {
+		font-weight: normal;
+		font-size: 18px;
+		margin: 0 0 1px 0;
+		padding: 5px;
+		border-radius: 2px;
+		color: #eee;
+		background: #3366CC
+	}
+	.source .lineNumber {
+		float: left;
+		display: block;
+		min-width: 30px;
+		border-radius: 1px;
+		text-align: right;
+		margin-right: 10px;
+		font-size: 14px;
+		font-family: monospace;
+		background: #d9931e;
+		color: #fff;
+	}
+	.source .line {
+		clear: both;
+		color: #333;
+		margin-bottom: 1px;
+		border-radius: 2px;
+	}
+	.source pre {
+		font-size: 14px;
+		margin: 0;
+		overflow-x: hidden;
+	}
+	.source .error {
+		color: #fff;
+		background: #851b17;
+	}
+	
+	.source a {
+		text-decoration: none;
+	}
+	.source a:hover * {
+		cursor: pointer !important;
+	}
+	.source a:hover pre {
+		background: #FAFFCF !important;
+	}
+	.source em {
+		font-style: normal;
+		text-decoration: underline;
+		font-weight: bold;
+	}
+	.source strong {
+		font-style: normal;
+		font-weight: bold;
+	}
+	</style>
+</head>
+<body>
+	{{if IsDevMode}}
+	<div class='item'>
+	<div class="header block">
+		<h1>
+			{{.Title}}
+		</h1>
+		<p>
+			<strong>{{.Description}}</strong>
+		</p>
+			{{if .Path}}
+		<div  class="block source">
+		<h2>In {{.Path}}
+			{{if .Line}}
+				({{if .Line}}line: {{.Line}}{{end}}{{if .Column}} column: {{.Column}}{{end}})
+			{{end}}
+		</h2>
+		{{range .ContextSource}}
+			<div class="line {{if .IsError}}error{{end}}">
+				<span class="lineNumber">{{.Line}}:</span>
+				<pre>{{.Source}} </pre>
+			</div>
+		{{end}}
+		</div>
+		{{end}}
+	</div>
+	</div>
+	{{else}}
+	<h1>Oops~! Application error.</h1>
+	{{end}}
+</body>
+</html>
