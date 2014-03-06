@@ -100,7 +100,6 @@ void wav_write_close(void* obj) {
 }
 
 void wav_write_data(void* obj, const unsigned char* data, int length) {
-	unsigned char mp3_buffer[8192];
 	struct wav_writer* ww = (struct wav_writer*) obj;
 	if (ww->wav == NULL)
 		return;

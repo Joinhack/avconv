@@ -61,3 +61,41 @@ func Amrnb2Wav(url string, app *peony.App) peony.Renderer {
 	conv.Amrnb2Wav(amrPath, wavPath)
 	return peony.RenderFile(wavPath)
 }
+
+//@Mapper("/amrnb2mp3")
+func Amrnb2Mp3(url string, app *peony.App) peony.Renderer {
+	if url == "" {
+		return peony.NotFound("No such file")
+	}
+	savePath := app.GetStringConfig("savepath", "/tmp")
+
+	hash := md5.New()
+	io.WriteString(hash, url)
+	sum := hash.Sum(nil)
+	mp3Path := path.Join(savePath, fmt.Sprintf("%x.mp3", sum))
+
+	if info, err := os.Stat(mp3Path); err == nil && !info.IsDir() {
+		return peony.RenderFile(mp3Path)
+	}
+	transport := http.Transport{
+		Dial: dialTimeout,
+	}
+	client := http.Client{
+		Transport: &transport,
+	}
+	workPath := app.GetStringConfig("workpath", "/tmp")
+	resp, err := client.Get(url)
+	if err != nil || resp.StatusCode != http.StatusOK {
+		return peony.NotFound("Get file from [%s] error.", url)
+	}
+	amrPath := path.Join(workPath, fmt.Sprintf("%x.amr", sum))
+	amrFile, err := os.OpenFile(amrPath, os.O_WRONLY|os.O_CREATE, 0666)
+	if err != nil {
+		return peony.NotFound("Save file[%s] error, detial: %s ", url, err.Error())
+	}
+	defer resp.Body.Close()
+	defer amrFile.Close()
+	io.Copy(amrFile, resp.Body)
+	conv.Amrnb2Mp3(amrPath, mp3Path)
+	return peony.RenderFile(mp3Path)
+}

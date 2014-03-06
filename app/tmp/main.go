@@ -64,6 +64,24 @@ func main() {
 			}},
 	)
 
+	svr.FuncMapper(`/amrnb2mp3`, []string{"GET", "POST", "PUT", "DELETE"}, 
+		controllers0.Amrnb2Mp3, &peony.Action{
+			Name: "Amrnb2Mp3",
+			
+			Args: []*peony.ArgType{ 
+				
+				&peony.ArgType{
+					Name: "url", 
+					Type: reflect.TypeOf((*string)(nil)).Elem(),
+				},
+			
+				&peony.ArgType{
+					Name: "app", 
+					Type: reflect.TypeOf((*peony.App)(nil)),
+				},
+			}},
+	)
+
 
 	svr.Router.Refresh()
 
