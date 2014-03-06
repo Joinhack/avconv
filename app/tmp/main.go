@@ -11,7 +11,6 @@ import (
 
 var (
 	_ = reflect.Ptr
-	runMode    *string = flag.String("runMode", "", "Run mode.")
 	bindAddr   *string = flag.String("bindAddr", ":8080", "By default, read from app.conf")
 	importPath *string = flag.String("importPath", "", "Go ImportPath for the app.")
 	srcPath    *string = flag.String("srcPath", "", "Path to the source root.")
