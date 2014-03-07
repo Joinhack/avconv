@@ -1,7 +1,12 @@
 package avconv
 
+import (
+	"unsafe"
+)
+
 /*
 #cgo LDFLAGS: -lopencore-amrnb -lmp3lame
+#include <stdlib.h>
 
 int amrnb2mp3(const char *amrpath, const char *wavpath);
 */
@@ -11,5 +16,11 @@ func init() {
 }
 
 func Amrnb2Mp3(s, d string) int {
-	return int(C.amrnb2mp3(C.CString(s), C.CString(d)))
+	amrPath := C.CString(s)
+	mp3Path := C.CString(d)
+	defer func() {
+		C.free(unsafe.Pointer(amrPath))
+		C.free(unsafe.Pointer(mp3Path))
+	}()
+	return int(C.amrnb2mp3(amrPath, mp3Path))
 }

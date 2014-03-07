@@ -18,8 +18,10 @@ int write_cache_init(write_cache *c, FILE *file, int cache_len) {
 
 void write_cache_close(write_cache *c) {
 	write_cache_flush(c);
-	if(c->cache)
+	if(c->cache) {
 		free(c->cache);
+		c->cache = NULL;
+	}
 }
 
 void write_cache_flush(write_cache *c) {
