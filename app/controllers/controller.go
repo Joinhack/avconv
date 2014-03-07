@@ -65,7 +65,10 @@ func convInner(url string, app *peony.App, f string) peony.Renderer {
 		return peony.NotFound("Save file[%s] error, detial: %s ", url, err.Error())
 	}
 	defer resp.Body.Close()
-	defer amrFile.Close()
+	defer func() {
+		amrFile.Close()
+		os.Remove(amrPath)
+	}()
 	io.Copy(amrFile, resp.Body)
 	convter[f](amrPath, destPath)
 	return peony.RenderFile(destPath)
