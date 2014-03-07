@@ -13,6 +13,9 @@ static void wave_encode_ctx_close(encode_ctx *ctx) {
 }
 
 static void wave_encode_ctx_flush(encode_ctx *ctx) {
+	if(ctx->priv != NULL) {
+		wav_write_flush(ctx->priv);
+	}
 }
 
 static void wave_encode_ctx_write(encode_ctx *ctx, const unsigned char* data, int length) {
@@ -24,7 +27,7 @@ static void wave_encode_ctx_write(encode_ctx *ctx, const unsigned char* data, in
 static int wave_encode_ctx_init(encode_ctx *ctx, const char *wavpath) {
 	memset(ctx, 0, sizeof(*ctx));
 	void *wav = wav_write_open(wavpath, 8000, 16, 1);
-	if (!wav) {
+	if (wav == NULL) {
 		return -1;
 	}
 	ctx->priv = wav;
@@ -41,6 +44,7 @@ int amrnb2wav(const char *amrpath, const char *wavpath) {
 		return -1;
 	}
 	decode_amrnb(amrpath, &ctx);
+	ctx.close(&ctx);
 	return 0;
 }
 

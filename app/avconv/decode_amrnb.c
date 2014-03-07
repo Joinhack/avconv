@@ -26,41 +26,37 @@ int decode_amrnb(const char *amrpath, encode_ctx *ctx) {
 		return -1;
 	}
 	amr = Decoder_Interface_init();
-	int cache_cap = 1024*10, cache_len = 0;
+	int cache_cap = 1024*24, cache_len = 0;
 	char cache[cache_cap], *r_ptr = NULL;
-	uint8_t buffer[500];
-	int size = 0;
-	int left = 0;
+	
 	while (1) {
 		uint8_t  littleendian[320], *ptr;
-		int i;
+		int i, size, left;
 		int16_t outbuffer[160];
 		/* Read the mode byte */
-		if(r_ptr == NULL || r_ptr - cache == cache_len) {
-			cache_len = fread(cache, sizeof(char), cache_cap, in);	
-			if (cache_len <= 0)
+		if(r_ptr == NULL) {
+			int rn = fread(cache + cache_len, sizeof(char), cache_cap - cache_len, in);	
+			if (rn <= 0)
 				break;
+			cache_len += rn;
 			r_ptr = cache;
 		}
-		if(size == 0) {
-			buffer[0] = *(uint8_t*)r_ptr;
-			r_ptr++;
-			size = sizes[(buffer[0] >> 3) & 0x0f];
-		}
+		size = sizes[(*r_ptr >> 3) & 0x0f];
 		left = cache_len - (r_ptr-cache);
 		if(left < size) {
-			memcpy(buffer+1, r_ptr, left);
-			r_ptr += left;
-			size -= left;
+			memmove(cache, r_ptr, left);
+			cache_len = left;
+			r_ptr = NULL;
 			continue;
-		} else {
-			memcpy(buffer+1, r_ptr, size);
-			r_ptr += size;
 		}
-		size = 0;
-
+		
 		/* Decode the packet */
-		Decoder_Interface_Decode(amr, buffer, outbuffer, 0);
+		Decoder_Interface_Decode(amr, (uint8_t*)r_ptr, outbuffer, 0);
+		r_ptr += 1 + size;
+		if(r_ptr - cache == cache_len) {
+			r_ptr = NULL;
+			cache_len = 0;	
+		}
 		
 		/* Convert to little endian and write to wav */
 		ptr = littleendian;
