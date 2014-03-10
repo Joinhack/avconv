@@ -23,26 +23,27 @@ static void wave_encode_ctx_write(encode_ctx *ctx, const unsigned char* data, in
 	wav_write_data(wav, data, 320);
 }
 
-
-static int wave_encode_ctx_init(encode_ctx *ctx, const char *wavpath) {
-	memset(ctx, 0, sizeof(*ctx));
-	void *wav = wav_write_open(wavpath, 8000, 16, 1);
+static int wave_encode_ctx_init(encode_ctx *ctx) {
+	void *wav = wav_write_open(ctx->output, 8000, 16, 1);
 	if (wav == NULL) {
 		return -1;
 	}
 	ctx->priv = wav;
+	return 0;
+}
+
+static void init_wave_encode_ctx(encode_ctx *ctx, const char *wavpath) {
+	memset(ctx, 0, sizeof(*ctx));
+	ctx->output = wavpath;
+	ctx->init = wave_encode_ctx_init;
 	ctx->close = wave_encode_ctx_close;
 	ctx->write = wave_encode_ctx_write;
 	ctx->flush = wave_encode_ctx_flush;
-	return 0;
 }
 
 int amrnb2wav(const char *amrpath, const char *wavpath) {
 	encode_ctx ctx;
-	if (wave_encode_ctx_init(&ctx, wavpath) < 0) {
-		fprintf(stderr, "Unable to open %s\n", wavpath);
-		return -1;
-	}
+	init_wave_encode_ctx(&ctx, wavpath);
 	decode_amrnb(amrpath, &ctx);
 	ctx.close(&ctx);
 	return 0;

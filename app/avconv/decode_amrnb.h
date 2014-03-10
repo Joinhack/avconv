@@ -8,9 +8,11 @@ extern "C" {
 
 
 typedef struct encode_handle_ctx {
+	int (*init)(struct encode_handle_ctx *ctx);
 	void (*flush)(struct encode_handle_ctx *ctx);
 	void (*close)(struct encode_handle_ctx *ctx);
 	void (*write)(struct encode_handle_ctx *ctx, const unsigned char* data, int length);
+	const char *output;
 	void *priv;
 } encode_ctx;
 

@@ -46,9 +46,7 @@ static void mp3_encode_ctx_write(encode_ctx *ctx, const unsigned char* data, int
 	}
 }
 
-
-static int mp3_encode_ctx_init(encode_ctx *ctx, const char *filename) {
-	memset(ctx, 0, sizeof(*ctx));
+static int mp3_encode_ctx_init(encode_ctx *ctx) {
 	lame_t lame = lame_init();
 	if (!lame) {
 		return -1;
@@ -61,7 +59,7 @@ static int mp3_encode_ctx_init(encode_ctx *ctx, const char *filename) {
 	lame_init_params(lame);
 
 	mp3_writer *mw = malloc(sizeof(*mw));
-	mw->mp3 = fopen(filename, "wb");
+	mw->mp3 = fopen(ctx->output, "wb");
 	if (mw->mp3 == NULL) {
 		free(mw);
 		lame_close(lame);
@@ -69,20 +67,23 @@ static int mp3_encode_ctx_init(encode_ctx *ctx, const char *filename) {
 	}
 	mw->lame = lame;
 	ctx->priv = mw;
-	ctx->close = mp3_encode_ctx_close;
-	ctx->write = mp3_encode_ctx_write;
-	ctx->flush = mp3_encode_ctx_flush;
 	write_cache_init(&mw->cache, mw->mp3, 1024*12);
 	return 0;
 }
 
+
+static void init_mp3_encode_ctx(encode_ctx *ctx, const char *filename) {
+	memset(ctx, 0, sizeof(*ctx));
+	ctx->output = filename;
+	ctx->init = mp3_encode_ctx_init;
+	ctx->close = mp3_encode_ctx_close;
+	ctx->write = mp3_encode_ctx_write;
+	ctx->flush = mp3_encode_ctx_flush;
+}
+
 int amrnb2mp3(const char *amrpath, const char *mp3path) {
-	void *wav, *amr;
 	encode_ctx ctx;
-	if (mp3_encode_ctx_init(&ctx, mp3path) < 0) {
-		fprintf(stderr, "Unable to open %s\n", mp3path);
-		return -1;
-	}
+	init_mp3_encode_ctx(&ctx, mp3path);
 	decode_amrnb(amrpath, &ctx);
 	ctx.close(&ctx);
 	return 0;

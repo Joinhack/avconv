@@ -25,6 +25,11 @@ int decode_amrnb(const char *amrpath, encode_ctx *ctx) {
 		fprintf(stderr, "Bad header\n");
 		return -1;
 	}
+	if(ctx->init(ctx) < 0) {
+		fprintf(stderr, "init encode context error\n");
+		fclose(in);
+		return -1;	
+	}
 	amr = Decoder_Interface_init();
 	int cache_cap = 1024*24, cache_len = 0;
 	char cache[cache_cap], *r_ptr = NULL;
