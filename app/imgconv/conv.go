@@ -2,6 +2,7 @@ package imgconv
 
 import (
 	"unsafe"
+	"errors"
 )
 
 /*
@@ -21,6 +22,7 @@ func Scale(fpath, tpath string, typ, cols, rows int) error {
 	var mw *C.MagickWand = C.NewMagickWand()
 	var cfpath = C.CString(fpath)
 	var ctpath = C.CString(tpath)
+	var etype C.ExceptionType
 	defer func() {
 		C.free(unsafe.Pointer(cfpath))
 		C.free(unsafe.Pointer(ctpath))
@@ -29,10 +31,18 @@ func Scale(fpath, tpath string, typ, cols, rows int) error {
 		C.ClearMagickWand(mw)
 		C.DestroyMagickWand(mw)
 	}()
-	var status C.MagickBooleanType
-	status = C.MagickReadImage(mw, cfpath)
-	if status == C.MagickFalse {return}
-	C.scale(mw, C.int(typ), C.int(cols), C.int(rows))
-	C.MagickWriteImages(mw, ctpath, C.MagickTrue)
+	if C.MagickReadImage(mw, cfpath) == C.MagickFalse {
+		goto ERR	
+	}
+	
+	if C.scale(mw, C.int(typ), C.int(cols), C.int(rows)) == C.MagickFalse {
+		goto ERR
+	}
+	if C.MagickWriteImages(mw, ctpath, C.MagickTrue) == C.MagickFalse {
+		goto ERR
+	}
 	return nil
+ERR:
+	etype = C.MagickGetExceptionType(mw)
+	return errors.New(C.GoString(C.MagickGetException(mw, &etype)))
 }
