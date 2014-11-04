@@ -18,7 +18,7 @@ func init() {
 	C.init()
 }
 
-func Scale(fpath, tpath string, typ, cols, rows int) error {
+func Resize(fpath, tpath string, typ, cols, rows int) error {
 	var mw *C.MagickWand = C.NewMagickWand()
 	var cfpath = C.CString(fpath)
 	var ctpath = C.CString(tpath)

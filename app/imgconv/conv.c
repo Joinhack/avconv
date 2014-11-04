@@ -3,7 +3,7 @@
 #include <string.h>
 #include <wand/magick_wand.h>
 
-int scale(MagickWand *mw, int type, int cols, int rows) {
+int resize(MagickWand *mw, int type, int cols, int rows) {
 	int rs = -1;
 	unsigned long mw_cols = MagickGetImageWidth(mw);
 	unsigned long mw_rows = MagickGetImageHeight(mw);
